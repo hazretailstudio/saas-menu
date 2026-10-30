@@ -9,15 +9,20 @@ export function middleware(req: NextRequest) {
   const hostname = req.headers.get('host') || '';
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || '';
 
-  // 1. Ignorar si estamos en rutas directas o si no hay subdominio personalizado configurado
-  if (!rootDomain || hostname === rootDomain || hostname.endsWith('.vercel.app') || hostname.startsWith('localhost')) {
+  // 1. Si no hay dominio personalizado configurado, o es localhost o termina en vercel.app, dejar pasar directo
+  if (
+    !rootDomain ||
+    hostname.endsWith('.vercel.app') ||
+    hostname.startsWith('localhost') ||
+    hostname === rootDomain
+  ) {
     return NextResponse.next();
   }
 
-  // 2. Detección de subdominios solo para dominios personalizados (ej. demo.tudominio.com)
-  if (hostname.includes(`.${rootDomain}`)) {
+  // 2. Solo reescribir si es un subdominio real sobre tu dominio propio (ej: demo.mirestaurante.com)
+  if (hostname.endsWith(`.${rootDomain}`)) {
     const subdomain = hostname.replace(`.${rootDomain}`, '').split(':')[0];
-    
+
     if (url.pathname.startsWith('/r/')) {
       return NextResponse.next();
     }
