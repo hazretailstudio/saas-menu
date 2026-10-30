@@ -2,12 +2,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import MenuClient from './MenuClient';
 
-export const revalidate = false;
-
-export async function generateStaticParams() {
-  const { data: tenants } = await supabase.from('tenants').select('slug');
-  return (tenants || []).map((t) => ({ slug: t.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 async function getMenuData(slug: string) {
   const { data: tenant, error: tenantError } = await supabase
